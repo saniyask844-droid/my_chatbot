@@ -2,123 +2,71 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Zevoir Chatbot</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; touch-action: manipulation; }
         
-        body { 
-            background: #f8fafc; 
-            height: 100vh; 
-            height: -webkit-fill-available; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            overflow: hidden; 
-            position: fixed; 
-            width: 100%;
-        }
+        body { background: #f8fafc; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; position: fixed; width: 100%; }
         
-        #chat-container { 
-            width: 100%; 
-            max-width: 500px; /* Width konchem penchanu */
-            height: 100vh; 
-            background: white; 
-            display: flex; 
-            flex-direction: column;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05); 
-            overflow: hidden;
-        }
+        #chat-container { width: 100%; max-width: 500px; height: 100vh; background: white; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05); overflow: hidden; }
+        @media (min-width: 481px) { #chat-container { height: 92vh; border-radius: 30px; } }
 
-        @media (min-width: 481px) {
-            #chat-container { height: 92vh; border-radius: 30px; }
-        }
-
-        /* Header - Extra Large */
-        #header { padding: 25px 20px; border-bottom: 2px solid #f1f5f9; display: flex; align-items: center; gap: 18px; background: #ffffff; z-index: 10; }
-        
-        .z-logo { width: 55px; height: 55px; border-radius: 15px; overflow: hidden; background: #f1f5f9; flex-shrink: 0; }
+        #header { padding: 25px 20px; border-bottom: 2px solid #f1f5f9; display: flex; align-items: center; gap: 18px; background: white; }
+        .z-logo { width: 55px; height: 55px; border-radius: 15px; overflow: hidden; background: #f1f5f9; }
         .z-logo img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* Title size 28px */
         #header p { font-weight: 800; font-size: 28px; color: #1e293b; letter-spacing: -1px; }
 
         #chat-box { flex: 1; padding: 30px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 22px; background: #fcfcfc; }
 
-        /* Message font size 20px */
-        .message { 
-            padding: 18px 22px; border-radius: 22px; font-size: 20px; max-width: 90%; line-height: 1.5;
-            word-wrap: break-word; word-break: break-word; white-space: pre-wrap;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-
+        .message { padding: 18px 22px; border-radius: 22px; font-size: 16px; max-width: 90%; line-height: 1.5; word-wrap: break-word; position: relative; }
         .user-msg { align-self: flex-end; background: #3b82f6; color: white; border-bottom-right-radius: 5px; }
         .bot-msg { align-self: flex-start; background: #ffffff; color: #334155; border: 1.5px solid #f1f5f9; border-bottom-left-radius: 5px; }
 
-        /* Input Area - Bold & Large */
-        #input-area { 
-            padding: 25px 20px; 
-            display: flex; 
-            gap: 15px; 
-            border-top: 2px solid #f1f5f9; 
-            background: white;
-            padding-bottom: calc(25px + env(safe-area-inset-bottom)); 
+        /* --- 2. LOADING DOTS ANIMATION (Kachitanga pani chestundi) --- */
+        .typing-container { display: flex; gap: 6px; padding: 8px 0; align-items: center; min-height: 20px; }
+        .dot { width: 10px; height: 10px; background: #3b82f6; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0.3); opacity: 0.3; }
+            40% { transform: scale(1); opacity: 1; }
         }
 
-        #user-input { 
-            flex: 1; 
-            border: 2px solid #e2e8f0; 
-            border-radius: 18px; 
-            padding: 18px 22px; 
-            outline: none; 
-            font-size: 20px; 
-            font-weight: 500;
-            background: #f8fafc;
-            transition: 0.3s;
-        }
-        #user-input:focus { border-color: #3b82f6; background: white; }
-        
-        #send-btn { 
-            background: #3b82f6; 
-            color: white; 
-            border: none; 
-            padding: 0 28px; 
-            border-radius: 18px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            font-size: 20px; 
-        }
-
-        .typing span { width: 10px; height: 10px; background: #3b82f6; margin: 0 3px; }
+        #input-area { padding: 20px; display: flex; gap: 10px; border-top: 2px solid #f1f5f9; background: white; }
+        #user-input { flex: 1; border: 2px solid #e2e8f0; border-radius: 15px; padding: 15px; outline: none; font-size: 16px; background: #f8fafc; }
+        #send-btn { background: #3b82f6; color: white; border: none; padding: 0 20px; border-radius: 15px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
     <div id="chat-container">
         <div id="header">
-            <div class="z-logo">
-                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Zevoir Logo">
-            </div>
+            <div class="z-logo"><img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png"></div>
             <p>Zevoir Chatbot</p>
         </div>
         <div id="chat-box"></div>
-        <div id="input-area">
-            <input type="text" id="user-input" placeholder="Type here..." maxlength="250" autocomplete="off">
-            <button id="send-btn">Send</button>
-        </div>
+        <form id="chat-form" style="display:contents;">
+            <div id="input-area">
+                <input type="text" id="user-input" placeholder="Type here..." autocomplete="off">
+                <button type="submit" id="send-btn">Send</button>
+            </div>
+        </form>
     </div>
 
     <script>
         const chatBox = document.getElementById('chat-box');
         const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
+        const chatForm = document.getElementById('chat-form');
 
+        // Welcome Message
         window.onload = () => {
-            const savedChat = JSON.parse(sessionStorage.getItem('zevoir_session_chat')) || [];
-            if (savedChat.length === 0) {
-                addMessage("Hello! I am <b>Zevoir Chatbot</b> 🤖. Provide a User ID (1-10) to see statistics.", "bot-msg", false);
+            const saved = JSON.parse(localStorage.getItem('zevoir_history')) || [];
+            if(saved.length === 0) {
+                addMessage("Hello! I am <b>Zevoir Chatbot</b> 🤖. How can I help you?", "bot-msg");
             } else {
-                savedChat.forEach(item => addMessage(item.text, item.type, false));
+                saved.forEach(m => addMessage(m.text, m.type, false));
             }
         };
 
@@ -128,39 +76,60 @@
             div.innerHTML = text;
             chatBox.appendChild(div);
             chatBox.scrollTop = chatBox.scrollHeight;
-            if (save) {
-                const savedChat = JSON.parse(sessionStorage.getItem('zevoir_session_chat')) || [];
-                savedChat.push({ text, type });
-                sessionStorage.setItem('zevoir_session_chat', JSON.stringify(savedChat));
+            if(save) {
+                let history = JSON.parse(localStorage.getItem('zevoir_history')) || [];
+                history.push({text, type});
+                localStorage.setItem('zevoir_history', JSON.stringify(history));
             }
         }
 
-        async function handleSend() {
+        // 4. Send Logic with 2 Seconds Loading
+        chatForm.onsubmit = async (e) => {
+            e.preventDefault(); // Prevents page reload
             const msg = userInput.value.trim();
             if (!msg) return;
+
             addMessage(msg, "user-msg");
             userInput.value = "";
-            const loading = document.createElement('div');
-            loading.className = "message bot-msg";
-            loading.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
-            chatBox.appendChild(loading);
+            userInput.disabled = true;
+
+            // Show Loading dots
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = "message bot-msg";
+            loadingMsg.id = "active-loading";
+            loadingMsg.innerHTML = `<div class="typing-container"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+            chatBox.appendChild(loadingMsg);
             chatBox.scrollTop = chatBox.scrollHeight;
+
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+
             try {
-                const response = await fetch('/get_response', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({message: msg})
-                });
+                // Waits for both: Fetch and 2 seconds timer
+                const [response] = await Promise.all([
+                    fetch('/get_response', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({message: msg})
+                    }),
+                    delay(2000) 
+                ]);
+
                 const data = await response.json();
-                chatBox.removeChild(loading);
+                
+                // Remove dots and show response
+                const loader = document.getElementById('active-loading');
+                if(loader) loader.remove();
                 addMessage(data.response, "bot-msg");
-            } catch (e) {
-                chatBox.removeChild(loading);
+
+            } catch (err) {
+                const loader = document.getElementById('active-loading');
+                if(loader) loader.remove();
                 addMessage("<b>Error:</b> Server issues. ⚠️", "bot-msg");
+            } finally {
+                userInput.disabled = false;
+                userInput.focus();
             }
-        }
-        sendBtn.onclick = handleSend;
-        userInput.addEventListener("keypress", (e) => { if (e.key === "Enter") handleSend(); });
+        };
     </script>
 </body>
 </html>
