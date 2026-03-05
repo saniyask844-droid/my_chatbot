@@ -1,3 +1,4 @@
+import os
 import requests
 from flask import Flask, render_template, request, jsonify
 
@@ -40,9 +41,8 @@ def get_response():
                 completed = len([t for t in todos if t['completed']])
                 pending = total - completed
                 percent = (completed / total) * 100
-                titles = [t['title'] for t in todos[:5]]  # First 5 titles
+                titles = [t['title'] for t in todos[:5]]
 
-                # Meeru adigina statistics format with emojis
                 response = (
                     f"<b>📊 User ID {user_id} Task Statistics:</b><br><br>"
                     f"🔢 Total Tasks: {total}<br>"
@@ -63,5 +63,7 @@ def get_response():
 
     return jsonify({"response": response})
 
+# Fix for Render: Using dynamic PORT and host 0.0.0.0
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
