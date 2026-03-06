@@ -24,7 +24,6 @@
         .user-msg { align-self: flex-end; background: #3b82f6; color: white; border-bottom-right-radius: 5px; }
         .bot-msg { align-self: flex-start; background: #ffffff; color: #334155; border: 1.5px solid #f1f5f9; border-bottom-left-radius: 5px; }
 
-        /* --- 2. LOADING DOTS ANIMATION (Kachitanga pani chestundi) --- */
         .typing-container { display: flex; gap: 6px; padding: 8px 0; align-items: center; min-height: 20px; }
         .dot { width: 10px; height: 10px; background: #3b82f6; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
         .dot:nth-child(2) { animation-delay: 0.2s; }
@@ -60,32 +59,35 @@
         const userInput = document.getElementById('user-input');
         const chatForm = document.getElementById('chat-form');
 
-        // Welcome Message
+        // Page load ayinappudu session check chestundi
         window.onload = () => {
-            const saved = JSON.parse(localStorage.getItem('zevoir_history')) || [];
+            const saved = JSON.parse(sessionStorage.getItem('zevoir_history')) || [];
             if(saved.length === 0) {
-                addMessage("Hello! I am <b>Zevoir Chatbot</b> 🤖. How can I help you?", "bot-msg");
+                renderMessage("Hello! I am <b>Zevoir Chatbot</b> 🤖. How can I help you?", "bot-msg");
             } else {
-                saved.forEach(m => addMessage(m.text, m.type, false));
+                saved.forEach(m => renderMessage(m.text, m.type));
             }
         };
 
-        function addMessage(text, type, save = true) {
+        // Message screen meeda chupinchadaniki matrame
+        function renderMessage(text, type) {
             const div = document.createElement('div');
             div.className = `message ${type}`;
             div.innerHTML = text;
             chatBox.appendChild(div);
             chatBox.scrollTop = chatBox.scrollHeight;
-            if(save) {
-                let history = JSON.parse(localStorage.getItem('zevoir_history')) || [];
-                history.push({text, type});
-                localStorage.setItem('zevoir_history', JSON.stringify(history));
-            }
         }
 
-        // 4. Send Logic with 2 Seconds Loading
+        // Message save chesi display cheyadaniki
+        function addMessage(text, type) {
+            renderMessage(text, type);
+            let history = JSON.parse(sessionStorage.getItem('zevoir_history')) || [];
+            history.push({text, type});
+            sessionStorage.setItem('zevoir_history', JSON.stringify(history));
+        }
+
         chatForm.onsubmit = async (e) => {
-            e.preventDefault(); // Prevents page reload
+            e.preventDefault(); 
             const msg = userInput.value.trim();
             if (!msg) return;
 
@@ -93,7 +95,6 @@
             userInput.value = "";
             userInput.disabled = true;
 
-            // Show Loading dots
             const loadingMsg = document.createElement('div');
             loadingMsg.className = "message bot-msg";
             loadingMsg.id = "active-loading";
@@ -104,7 +105,6 @@
             const delay = ms => new Promise(res => setTimeout(res, ms));
 
             try {
-                // Waits for both: Fetch and 2 seconds timer
                 const [response] = await Promise.all([
                     fetch('/get_response', {
                         method: 'POST',
@@ -116,7 +116,6 @@
 
                 const data = await response.json();
                 
-                // Remove dots and show response
                 const loader = document.getElementById('active-loading');
                 if(loader) loader.remove();
                 addMessage(data.response, "bot-msg");
